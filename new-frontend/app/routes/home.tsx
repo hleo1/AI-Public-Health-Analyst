@@ -2,6 +2,7 @@ import type { Route } from "./+types/home";
 import { useEffect, useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
+
 function Icon({ text }: { text: string }) {
   return (
     <div className="w-15 h-15 border border-black rounded-xl flex items-center justify-center text-center cursor-pointer">
@@ -29,9 +30,30 @@ function DragNDrop({file, setFile, filetype} : {file: File | null, setFile: Reac
 function DataSourceBlock() {
   const [xptFile, setxptFile] = useState<File | null>(null);
   const [pdfFile, setpdfFile] = useState<File | null>(null);
+  const [uploadSuccesful, setuploadSuccesful] = useState(false);
 
-  const uploadFiles = () => {
-    console.log(xptFile?.name, pdfFile?.name);
+  const uploadFiles = async () => {
+    if (!xptFile || !pdfFile) {
+      alert("Both XPT and PDF files are required.");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("xpt", xptFile);
+    formData.append("pdf", pdfFile);
+
+    try {
+      const response = await fetch("http://localhost:3000/data-source", {
+        method: "POST",
+        body: formData,
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      const text = await response.text();
+      console.log("Upload success:", text);
+    } catch (error) {
+      console.error("Upload failed:", error);
+    }
   }
 
   return (
