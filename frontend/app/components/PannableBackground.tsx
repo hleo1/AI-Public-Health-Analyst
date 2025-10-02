@@ -16,8 +16,8 @@ type PannableBackgroundProps = {
 
 export function PannableBackground({
   className = "relative w-full h-full",
-  backgroundImage = "radial-gradient(circle, rgba(0,0,0,0.2) 1px, transparent 1px)",
-  backgroundSize = "20px 20px",
+  backgroundImage = "radial-gradient(circle, rgba(0,0,0,0.2) 2px, transparent 1px)",
+  backgroundSize = "30px 30px",
   children,
 }: PannableBackgroundProps) {
   const { offset, isPanning, handlers, setOffset } = usePanning();
