@@ -23,6 +23,16 @@ class dataFrameCode {
         this.install_libraries(libraries);
     };
 
+    setColumnNames(column_names: string[]) {
+        this.column_names = column_names;
+    }
+
+    private checkColumnNamesExist(column_names: string[])  {
+        const missing = column_names.filter(col => !this.column_names.includes(col));
+        if (missing.length) throw new Error(`Columns not found: ${missing.join(", ")}`);
+        // return !(missing.length)
+    }
+
     load_xpt(file_path: string) {
         this.code += `${this.dataframe_name} <- read_xpt("${file_path}")`;
         this;
@@ -35,16 +45,6 @@ class dataFrameCode {
     find() {
         this.code += `${this.dataframe_name} = ${this.dataframe_name} %>% select(everything())`
         return this;
-    }
-
-    setColumnNames(column_names: string[]) {
-        this.column_names = column_names;
-    }
-
-    private checkColumnNamesExist(column_names: string[])  {
-        const missing = column_names.filter(col => !this.column_names.includes(col));
-        if (missing.length) throw new Error(`Columns not found: ${missing.join(", ")}`);
-        // return !(missing.length)
     }
 
     select(column_names: string[]) {
