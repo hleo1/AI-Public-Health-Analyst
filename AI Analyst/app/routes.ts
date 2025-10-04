@@ -4,5 +4,6 @@ export default [
     // index("routes/home.tsx"),
     route("/", "routes/home.tsx"),
     route("/test" ,"routes/test.tsx"),
-    route("/extract", "routes/extract.tsx")
+    route("/extract", "routes/extract.tsx"),
+    route("/canvas", "routes/canvas.tsx")
 ] satisfies RouteConfig;
