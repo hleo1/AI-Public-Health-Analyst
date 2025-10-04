@@ -145,6 +145,65 @@ export function useFormSubmit() {
   return { submitFiles };
 }
 
+function LoadingAnimation() {
+  const [statusText, setStatusText] = useState("Processing files...");
+
+  React.useEffect(() => {
+    const messages = [
+      "Processing files...",
+      "Extracting data...",
+      "Analyzing variables...",
+      "Reading documentation...",
+      "Almost there...",
+    ];
+    let index = 0;
+    
+    const interval = setInterval(() => {
+      index = (index + 1) % messages.length;
+      setStatusText(messages[index]);
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="flex flex-col items-center justify-center py-12">
+      {/* Atom/Molecule Spinner */}
+      <div className="relative w-24 h-24 mb-6">
+        {/* Nucleus */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full animate-pulse-slow shadow-lg"></div>
+        
+        {/* Electron Orbits */}
+        <div className="absolute inset-0 animate-spin-slow">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3 h-3 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full shadow-md"></div>
+        </div>
+        <div className="absolute inset-0 animate-spin-slow" style={{ animationDelay: '0.33s' }}>
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3 h-3 bg-gradient-to-br from-pink-400 to-pink-600 rounded-full shadow-md"></div>
+        </div>
+        <div className="absolute inset-0 animate-spin-slow" style={{ animationDelay: '0.66s' }}>
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3 h-3 bg-gradient-to-br from-green-400 to-green-600 rounded-full shadow-md"></div>
+        </div>
+        
+        {/* Orbit Rings */}
+        <div className="absolute inset-0 border-2 border-blue-200 rounded-full animate-spin-slow opacity-30"></div>
+        <div className="absolute inset-2 border-2 border-purple-200 rounded-full animate-spin-reverse opacity-20"></div>
+      </div>
+
+      {/* Status Text with Pulsing Dots */}
+      <div className="text-center">
+        <p className="text-lg font-semibold text-gray-700 mb-2">
+          {statusText}
+        </p>
+        <div className="flex items-center justify-center gap-2">
+          <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse-dot"></div>
+          <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse-dot" style={{ animationDelay: '0.2s' }}></div>
+          <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse-dot" style={{ animationDelay: '0.4s' }}></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function DragNDropInput() {
   const { xptFile, pdfFile, handleXptChange, handlePdfChange } =
     useFileUpload();
@@ -153,13 +212,21 @@ function DragNDropInput() {
     useExtractedData();
 
   const { submitFiles } = useFormSubmit();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     // 3. Prevent the default form submission which would be empty
     event.preventDefault();
 
+    setIsLoading(true);
     submitFiles(xptFile, pdfFile);
   };
+
+  React.useEffect(() => {
+    if (hasData) {
+      setIsLoading(false);
+    }
+  }, [hasData]);
 
   return (
     <div className="w-[420px]">
@@ -178,52 +245,58 @@ function DragNDropInput() {
           </h2>
         </div>
 
-        <div className="space-y-4">
-          <div>
-            <label className="block">
-              <span className="text-sm font-semibold text-gray-700 mb-2 block">
-                XPT File
-              </span>
-              <input
-                type="file"
-                name="xpt"
-                className="block w-full text-sm text-gray-700
-              border-2 border-gray-200 rounded-xl p-3
-              transition-all duration-200 hover:border-blue-400 hover:bg-gray-50
-              file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 
-              file:text-sm file:font-semibold file:bg-gradient-to-r file:from-blue-500 file:to-blue-600 file:text-white 
-              hover:file:from-blue-400 hover:file:to-blue-500 file:cursor-pointer file:shadow-sm"
-                onChange={(e) => handleXptChange(e)}
-              />
-            </label>
-          </div>
+        {isLoading ? (
+          <LoadingAnimation />
+        ) : (
+          <>
+            <div className="space-y-4">
+              <div>
+                <label className="block">
+                  <span className="text-sm font-semibold text-gray-700 mb-2 block">
+                    XPT File
+                  </span>
+                  <input
+                    type="file"
+                    name="xpt"
+                    className="block w-full text-sm text-gray-700
+                  border-2 border-gray-200 rounded-xl p-3
+                  transition-all duration-200 hover:border-blue-400 hover:bg-gray-50
+                  file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 
+                  file:text-sm file:font-semibold file:bg-gradient-to-r file:from-blue-500 file:to-blue-600 file:text-white 
+                  hover:file:from-blue-400 hover:file:to-blue-500 file:cursor-pointer file:shadow-sm"
+                    onChange={(e) => handleXptChange(e)}
+                  />
+                </label>
+              </div>
 
-          <div>
-            <label className="block">
-              <span className="text-sm font-semibold text-gray-700 mb-2 block">
-                Documentation File
-              </span>
-              <input
-                type="file"
-                name="pdf"
-                className="block w-full text-sm text-gray-700
-              border-2 border-gray-200 rounded-xl p-3
-              transition-all duration-200 hover:border-blue-400 hover:bg-gray-50
-              file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 
-              file:text-sm file:font-semibold file:bg-gradient-to-r file:from-blue-500 file:to-blue-600 file:text-white 
-              hover:file:from-blue-400 hover:file:to-blue-500 file:cursor-pointer file:shadow-sm"
-                onChange={(e) => handlePdfChange(e)}
-              />
-            </label>
-          </div>
-        </div>
+              <div>
+                <label className="block">
+                  <span className="text-sm font-semibold text-gray-700 mb-2 block">
+                    Documentation File
+                  </span>
+                  <input
+                    type="file"
+                    name="pdf"
+                    className="block w-full text-sm text-gray-700
+                  border-2 border-gray-200 rounded-xl p-3
+                  transition-all duration-200 hover:border-blue-400 hover:bg-gray-50
+                  file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 
+                  file:text-sm file:font-semibold file:bg-gradient-to-r file:from-blue-500 file:to-blue-600 file:text-white 
+                  hover:file:from-blue-400 hover:file:to-blue-500 file:cursor-pointer file:shadow-sm"
+                    onChange={(e) => handlePdfChange(e)}
+                  />
+                </label>
+              </div>
+            </div>
 
-        <button
-          type="submit"
-          className="mt-6 w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 text-white text-sm font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg"
-        >
-          Process Files
-        </button>
+            <button
+              type="submit"
+              className="mt-6 w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 text-white text-sm font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg"
+            >
+              Process Files
+            </button>
+          </>
+        )}
       </Form>
 
       {hasData && (
