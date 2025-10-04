@@ -12,7 +12,7 @@ import fs from "fs";
 import { Extractor } from "./extract";
 
 
-async function formDataParsing(request: Request)  {
+export async function formDataParsing(request: Request)  {
 
   let formData = await request.formData();
   let xptFile = formData.get("xpt");
@@ -47,7 +47,7 @@ async function formDataParsing(request: Request)  {
 
 }
 
-async function extractXPT(path: string) {
+export async function extractXPT(path: string) {
   const rScript = `
   required <- c("haven", "jsonlite", "dplyr", "ggplot2")
   to_install <- setdiff(required, rownames(installed.packages()))
@@ -83,7 +83,6 @@ return await new Promise((resolve) => {
 }
 
 
-
 export async function action({
   request,
 }: Route.ActionArgs) {
@@ -107,6 +106,7 @@ export async function action({
     return {error: "xptPath broken"}
   }
 }
+
 
 
 export function useFileUpload() {
@@ -143,117 +143,104 @@ export function useExtractedData() {
 }
 
 
-
-
-export default function Home() {
-
-  const { xptFile, pdfFile, handleXptChange, handlePdfChange} = useFileUpload();
-
-  const { parsed_var_names, parsed_description, parsed_units, hasData} = useExtractedData();
-
+export function useFormSubmit() {
   const submit = useSubmit();
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    // 3. Prevent the default form submission which would be empty
-    event.preventDefault();
-
-    // 4. Create a new FormData object manually
+  const submitFiles = (xptFile: File | null, pdfFile: File | null) => { 
     const formData = new FormData();
+    if (xptFile) formData.append("xpt", xptFile);
+    if (pdfFile) formData.append("pdf", pdfFile);
 
-    // 5. Append files from your state to the FormData object
-    if (xptFile) {
-      formData.append("xpt", xptFile);
-    }
-    if (pdfFile) {
-      formData.append("pdf", pdfFile);
-    }
-
-    // 6. Use the `submit` function to send your manually created FormData
-    //    to the route's action. The `encType` is crucial for file uploads.
     submit(formData, { method: "post", encType: "multipart/form-data" });
+  }
+
+  return {submitFiles}
+}
+
+function DragNDropInput({ name, handleChange }: { name: string, handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void }) {
+  return(<div>
+        <label className="block mb-3">
+          <span className="text-md font-semibold text-gray-700">{name}</span>
+          <input
+            type="file"
+            name="xpt"
+            className="block mt-3 w-full text-md text-gray-700
+              border-2 border-dashed border-gray-300 rounded-xl p-4
+              transition-all duration-200 hover:border-blue-400
+              file:mr-4 file:py-1 file:px-2 file:rounded-lg file:border-0 
+              file:text-base file:font-semibold file:bg-blue-600 file:text-white 
+              hover:file:bg-blue-700 file:cursor-pointer"
+            onChange={e => handleChange(e)}
+          />
+        </label>
+      </div>)
+
+}
+
+
+export function FileSelectAndExtract() {
+
+  const { xptFile, pdfFile, handleXptChange, handlePdfChange} = useFileUpload();
+  const { submitFiles } = useFormSubmit();
+  const { parsed_var_names, parsed_description, parsed_units, hasData} = useExtractedData();
+
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    submitFiles(xptFile, pdfFile);
   };
 
   
 
-  
-
-  
-  
-
-
-  return <div className="max-w-4xl mx-auto p-8">
-  <Form method="post" encType="multipart/form-data" onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-8 mb-8">
-    <h2 className="text-3xl font-bold mb-8 text-gray-800">Upload Data Files</h2>
-    
-    <div className="space-y-6">
-      <div>
-        <label className="block mb-3">
-          <span className="text-xl font-semibold text-gray-700">XPT File:</span>
-          <input
-            type="file"
-            name="xpt"
-            className="block mt-3 w-full text-lg text-gray-700
-              border-2 border-dashed border-gray-300 rounded-xl p-4
-              transition-all duration-200 hover:border-blue-400
-              file:mr-4 file:py-3 file:px-6 file:rounded-lg file:border-0 
-              file:text-base file:font-semibold file:bg-blue-600 file:text-white 
-              hover:file:bg-blue-700 file:cursor-pointer"
-            onChange={e => handleXptChange(e)}
-          />
-        </label>
+  return (<div className="w-75">
+    <Form method="post" encType="multipart/form-data" onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-8 mb-8">
+      <h2 className="text-xl font-bold mb-2 text-gray-800">Upload Data Files</h2>
+      
+      <div className="space-y-2">
+        <DragNDropInput name = "XPT File" handleChange = {handleXptChange} />
+        <DragNDropInput name = "PDF File" handleChange = {handlePdfChange}/>
       </div>
-
-      <div>
-        <label className="block mb-3">
-          <span className="text-xl font-semibold text-gray-700">Documentation File:</span>
-          <input
-            type="file"
-            name="pdf"
-            className="block mt-3 w-full text-lg text-gray-700
-              border-2 border-dashed border-gray-300 rounded-xl p-4
-              transition-all duration-200 hover:border-blue-400
-              file:mr-4 file:py-3 file:px-6 file:rounded-lg file:border-0 
-              file:text-base file:font-semibold file:bg-blue-600 file:text-white 
-              hover:file:bg-blue-700 file:cursor-pointer"
-            onChange={e => handlePdfChange(e)}
-          />
-        </label>
-      </div>
-    </div>
-    
-    <button 
-      type="submit" 
-      className="mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white text-xl font-semibold py-4 px-8 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
-    >
-      Process Files
-    </button>
-  </Form>
-
-{hasData && (
-  <div className="bg-white rounded-xl shadow-lg p-8">
-    <h2 className="text-3xl font-bold mb-6 text-gray-800">Extracted Variables</h2>
-    <div className="overflow-x-auto">
-      <table className="min-w-full border-collapse">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="border border-gray-300 px-6 py-4 text-left text-lg font-semibold text-gray-700">Variable Name</th>
-            <th className="border border-gray-300 px-6 py-4 text-left text-lg font-semibold text-gray-700">Description</th>
-            <th className="border border-gray-300 px-6 py-4 text-left text-lg font-semibold text-gray-700">Units</th>
-          </tr>
-        </thead>
-        <tbody>
-          {parsed_var_names.map((name, i) => (
-            <tr key={i} className="hover:bg-gray-50 transition-colors">
-              <td className="border border-gray-300 px-6 py-4 text-base text-gray-800 font-medium">{name}</td>
-              <td className="border border-gray-300 px-6 py-4 text-base text-gray-700">{parsed_description?.[i] || ""}</td>
-              <td className="border border-gray-300 px-6 py-4 text-base text-gray-700">{parsed_units?.[i] || ""}</td>
+      
+      <button 
+        type="submit" 
+        className="mt-1 w-full bg-blue-600 hover:bg-blue-700 text-white text-md font-semibold py-1 px-3 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
+      >
+        Process Files
+      </button>
+    </Form>
+  
+  {hasData && (
+    <div className="bg-white rounded-xl shadow-lg p-8">
+      <h2 className="text-3xl font-bold mb-6 text-gray-800">Extracted Variables</h2>
+      <div className="overflow-x-auto">
+        <table className="min-w-full border-collapse">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border border-gray-300 px-6 py-4 text-left text-lg font-semibold text-gray-700">Variable Name</th>
+              <th className="border border-gray-300 px-6 py-4 text-left text-lg font-semibold text-gray-700">Description</th>
+              <th className="border border-gray-300 px-6 py-4 text-left text-lg font-semibold text-gray-700">Units</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {parsed_var_names.map((name, i) => (
+              <tr key={i} className="hover:bg-gray-50 transition-colors">
+                <td className="border border-gray-300 px-6 py-4 text-base text-gray-800 font-medium">{name}</td>
+                <td className="border border-gray-300 px-6 py-4 text-base text-gray-700">{parsed_description?.[i] || ""}</td>
+                <td className="border border-gray-300 px-6 py-4 text-base text-gray-700">{parsed_units?.[i] || ""}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
-  </div>
-)}
+  )}
+  
+    </div>)
+}
 
-  </div>;
+
+
+
+export default function Home() {
+  return (<FileSelectAndExtract/>)
 }
