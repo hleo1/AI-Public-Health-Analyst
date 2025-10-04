@@ -162,51 +162,56 @@ function DragNDropInput() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-8">
+    <div className="w-[420px]">
       <Form
         method="post"
         encType="multipart/form-data"
         onSubmit={handleSubmit}
-        className="bg-white rounded-xl shadow-lg p-8 mb-8"
+        className="bg-white rounded-2xl shadow-2xl p-6 mb-6 border border-gray-100"
       >
-        <h2 className="text-3xl font-bold mb-8 text-gray-800">
-          Upload Data Files
-        </h2>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-500 rounded-xl flex items-center justify-center text-xl shadow-md">
+            📦
+          </div>
+          <h2 className="text-xl font-bold text-gray-900">
+            Load Data
+          </h2>
+        </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4">
           <div>
-            <label className="block mb-3">
-              <span className="text-xl font-semibold text-gray-700">
-                XPT File:
+            <label className="block">
+              <span className="text-sm font-semibold text-gray-700 mb-2 block">
+                XPT File
               </span>
               <input
                 type="file"
                 name="xpt"
-                className="block mt-3 w-full text-lg text-gray-700
-              border-2 border-dashed border-gray-300 rounded-xl p-4
-              transition-all duration-200 hover:border-blue-400
-              file:mr-4 file:py-3 file:px-6 file:rounded-lg file:border-0 
-              file:text-base file:font-semibold file:bg-blue-600 file:text-white 
-              hover:file:bg-blue-700 file:cursor-pointer"
+                className="block w-full text-sm text-gray-700
+              border-2 border-gray-200 rounded-xl p-3
+              transition-all duration-200 hover:border-blue-400 hover:bg-gray-50
+              file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 
+              file:text-sm file:font-semibold file:bg-gradient-to-r file:from-blue-500 file:to-blue-600 file:text-white 
+              hover:file:from-blue-400 hover:file:to-blue-500 file:cursor-pointer file:shadow-sm"
                 onChange={(e) => handleXptChange(e)}
               />
             </label>
           </div>
 
           <div>
-            <label className="block mb-3">
-              <span className="text-xl font-semibold text-gray-700">
-                Documentation File:
+            <label className="block">
+              <span className="text-sm font-semibold text-gray-700 mb-2 block">
+                Documentation File
               </span>
               <input
                 type="file"
                 name="pdf"
-                className="block mt-3 w-full text-lg text-gray-700
-              border-2 border-dashed border-gray-300 rounded-xl p-4
-              transition-all duration-200 hover:border-blue-400
-              file:mr-4 file:py-3 file:px-6 file:rounded-lg file:border-0 
-              file:text-base file:font-semibold file:bg-blue-600 file:text-white 
-              hover:file:bg-blue-700 file:cursor-pointer"
+                className="block w-full text-sm text-gray-700
+              border-2 border-gray-200 rounded-xl p-3
+              transition-all duration-200 hover:border-blue-400 hover:bg-gray-50
+              file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 
+              file:text-sm file:font-semibold file:bg-gradient-to-r file:from-blue-500 file:to-blue-600 file:text-white 
+              hover:file:from-blue-400 hover:file:to-blue-500 file:cursor-pointer file:shadow-sm"
                 onChange={(e) => handlePdfChange(e)}
               />
             </label>
@@ -215,42 +220,42 @@ function DragNDropInput() {
 
         <button
           type="submit"
-          className="mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white text-xl font-semibold py-4 px-8 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
+          className="mt-6 w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 text-white text-sm font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg"
         >
           Process Files
         </button>
       </Form>
 
       {hasData && (
-        <div className="bg-white rounded-xl shadow-lg p-8">
-          <h2 className="text-3xl font-bold mb-6 text-gray-800">
+        <div className="bg-white rounded-2xl shadow-2xl p-6 border border-gray-100">
+          <h3 className="text-lg font-bold mb-4 text-gray-900">
             Extracted Variables
-          </h2>
+          </h3>
           <div className="overflow-x-auto">
-            <table className="min-w-full border-collapse">
+            <table className="min-w-full">
               <thead>
-                <tr className="bg-gray-100">
-                  <th className="border border-gray-300 px-6 py-4 text-left text-lg font-semibold text-gray-700">
-                    Variable Name
+                <tr className="bg-gradient-to-r from-gray-50 to-gray-100">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 rounded-tl-lg">
+                    Variable
                   </th>
-                  <th className="border border-gray-300 px-6 py-4 text-left text-lg font-semibold text-gray-700">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700">
                     Description
                   </th>
-                  <th className="border border-gray-300 px-6 py-4 text-left text-lg font-semibold text-gray-700">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 rounded-tr-lg">
                     Units
                   </th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-gray-100">
                 {parsed_var_names.map((name, i) => (
-                  <tr key={i} className="hover:bg-gray-50 transition-colors">
-                    <td className="border border-gray-300 px-6 py-4 text-base text-gray-800 font-medium">
+                  <tr key={i} className="hover:bg-blue-50 transition-colors group">
+                    <td className="px-4 py-3 text-sm text-gray-900 font-medium">
                       {name}
                     </td>
-                    <td className="border border-gray-300 px-6 py-4 text-base text-gray-700">
+                    <td className="px-4 py-3 text-sm text-gray-700">
                       {parsed_description?.[i] || ""}
                     </td>
-                    <td className="border border-gray-300 px-6 py-4 text-base text-gray-700">
+                    <td className="px-4 py-3 text-sm text-gray-700">
                       {parsed_units?.[i] || ""}
                     </td>
                   </tr>
@@ -264,8 +269,15 @@ function DragNDropInput() {
   );
 }
 
-function NodesPanel({ onClose }: { onClose: () => void }) {
-  const [selectedItem, setSelectedItem] = useState<string | null>(null);
+function NodesPanel({ 
+  onClose, 
+  selectedItem, 
+  setSelectedItem 
+}: { 
+  onClose: () => void;
+  selectedItem: string | null;
+  setSelectedItem: (item: string | null) => void;
+}) {
 
   const categories = [
     {
@@ -431,41 +443,169 @@ function NodesPanel({ onClose }: { onClose: () => void }) {
   );
 }
 
-function AddButton() {
-  const [isPanelOpen, setIsPanelOpen] = useState(true);
+function DraggableNode({ 
+  id, 
+  initialX, 
+  initialY,
+  onDelete,
+  children 
+}: { 
+  id: string;
+  initialX: number;
+  initialY: number;
+  onDelete: () => void;
+  children: React.ReactNode;
+}) {
+  const [position, setPosition] = useState({ x: initialX, y: initialY });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest('input, button, label, .delete-button')) {
+      return;
+    }
+    
+    setIsDragging(true);
+    setDragOffset({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y,
+    });
+  };
+
+  React.useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isDragging) {
+        setPosition({
+          x: e.clientX - dragOffset.x,
+          y: e.clientY - dragOffset.y,
+        });
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, dragOffset]);
 
   return (
-    <div className="w-full min-h-screen flex items-start justify-start p-4">
-      {!isPanelOpen && (
-        <button
-          onClick={() => setIsPanelOpen(true)}
-          className="cursor-pointer relative w-16 h-16 rounded-full bg-gradient-to-b from-blue-400 to-blue-500 hover:from-blue-300 hover:to-blue-400 shadow-lg flex items-center justify-center text-white text-2xl transition-colors"
-        >
-          <span className="absolute top-0 left-0 w-full h-1 rounded-t-full bg-white/30 blur-sm"></span>
-          +
-        </button>
-      )}
-
-      {isPanelOpen && <NodesPanel onClose={() => setIsPanelOpen(false)} />}
+    <div
+      style={{
+        position: 'absolute',
+        left: position.x,
+        top: position.y,
+        cursor: isDragging ? 'grabbing' : 'grab',
+        zIndex: isDragging ? 1000 : 10,
+      }}
+      onMouseDown={handleMouseDown}
+      className="relative"
+    >
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete();
+        }}
+        className="delete-button absolute top-2 right-2 w-7 h-7 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center shadow-lg transition-colors z-50 cursor-pointer text-sm"
+      >
+        ✕
+      </button>
+      {children}
     </div>
   );
 }
 
+function AddButton({ 
+  selectedItem, 
+  setSelectedItem 
+}: { 
+  selectedItem: string | null;
+  setSelectedItem: (item: string | null) => void;
+}) {
+  const [isPanelOpen, setIsPanelOpen] = useState(true);
+
+  return (
+    <>
+      <div className="absolute top-0 left-0 p-4 z-40">
+        {!isPanelOpen && (
+          <button
+            onClick={() => setIsPanelOpen(true)}
+            className="cursor-pointer relative w-16 h-16 rounded-full bg-gradient-to-b from-blue-400 to-blue-500 hover:from-blue-300 hover:to-blue-400 shadow-lg flex items-center justify-center text-white text-2xl transition-colors"
+          >
+            <span className="absolute top-0 left-0 w-full h-1 rounded-t-full bg-white/30 blur-sm"></span>
+            +
+          </button>
+        )}
+      </div>
+
+      {isPanelOpen && (
+        <NodesPanel 
+          onClose={() => setIsPanelOpen(false)} 
+          selectedItem={selectedItem}
+          setSelectedItem={setSelectedItem}
+        />
+      )}
+    </>
+  );
+}
+
 export default function Home() {
+  const [selectedItem, setSelectedItem] = useState<string | null>(null);
+  const [dataNodes, setDataNodes] = useState<Array<{ id: string; x: number; y: number }>>([]);
+
+  const handleCanvasClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Check if click is on the canvas (not on a node or panel)
+    if ((e.target as HTMLElement).closest('.data-node, .fixed')) {
+      return;
+    }
+
+    if (selectedItem === "Load Data") {
+      const newNode = {
+        id: `node-${Date.now()}`,
+        x: e.clientX - 200, // Center the node at click position
+        y: e.clientY - 200,
+      };
+      setDataNodes([...dataNodes, newNode]);
+    }
+  };
+
+  const handleDeleteNode = (nodeId: string) => {
+    setDataNodes(dataNodes.filter(node => node.id !== nodeId));
+  };
+
   return (
     <>
       <div
-        className="w-full min-h-screen"
+        className="w-full min-h-screen relative"
         style={{
           backgroundImage:
             "radial-gradient(circle, rgba(0,0,0,0.2) 1.5px, transparent 1px)",
           backgroundSize: "20px 20px",
         }}
+        onClick={handleCanvasClick}
       >
+        <AddButton selectedItem={selectedItem} setSelectedItem={setSelectedItem} />
 
-        <AddButton/>
-        
-        
+        {dataNodes.map((node) => (
+          <DraggableNode 
+            key={node.id} 
+            id={node.id} 
+            initialX={node.x} 
+            initialY={node.y}
+            onDelete={() => handleDeleteNode(node.id)}
+          >
+            <div className="data-node">
+              <DragNDropInput />
+            </div>
+          </DraggableNode>
+        ))}
       </div>
     </>
   );
