@@ -9,6 +9,7 @@
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
+    "@ax-llm/ax": "^14.0.28",
     "@react-router/node": "^7.9.2",
     "@react-router/serve": "^7.9.2",
     "isbot": "^5.1.31",
@@ -19,10 +20,12 @@
   "devDependencies": {
     "@react-router/dev": "^7.9.2",
     "@tailwindcss/vite": "^4.1.13",
+    "@types/multer": "^2.0.0",
     "@types/node": "^22",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
     "@types/react-dropzone": "^5.1.0",
+    "multer": "^2.0.2",
     "react-dropzone": "^14.3.8",
     "tailwindcss": "^4.1.13",
     "typescript": "^5.9.2",
