@@ -23,7 +23,7 @@ app.get("/", (req: Request, res: Response) => {
 
 //   const filePath = path; // use provided path
 
-        const filePath = "../data/DEMO_L.xpt"
+  const filePath = "../data/DEMO_L.xpt"
   // R command to read .xpt and convert to JSON
   const rScript = `
     required <- c("haven", "jsonlite")
