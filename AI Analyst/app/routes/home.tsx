@@ -142,6 +142,20 @@ export function useExtractedData() {
 
 }
 
+export function useFormSubmit() {
+  const submit = useSubmit();
+
+  const submitFiles = (xptFile: File | null, pdfFile: File | null) => {
+    const formData = new FormData();
+    if (xptFile) formData.append("xpt", xptFile);
+    if (pdfFile) formData.append("pdf", pdfFile);
+    
+    submit(formData, { method: "post", encType: "multipart/form-data" });
+  };
+
+  return { submitFiles };
+}
+
 
 
 
@@ -151,26 +165,13 @@ export default function Home() {
 
   const { parsed_var_names, parsed_description, parsed_units, hasData} = useExtractedData();
 
-  const submit = useSubmit();
+  const { submitFiles} = useFormSubmit();
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     // 3. Prevent the default form submission which would be empty
     event.preventDefault();
 
-    // 4. Create a new FormData object manually
-    const formData = new FormData();
-
-    // 5. Append files from your state to the FormData object
-    if (xptFile) {
-      formData.append("xpt", xptFile);
-    }
-    if (pdfFile) {
-      formData.append("pdf", pdfFile);
-    }
-
-    // 6. Use the `submit` function to send your manually created FormData
-    //    to the route's action. The `encType` is crucial for file uploads.
-    submit(formData, { method: "post", encType: "multipart/form-data" });
+    submitFiles(xptFile, pdfFile);
   };
 
   
