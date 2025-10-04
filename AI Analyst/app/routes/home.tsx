@@ -265,39 +265,41 @@ function DragNDropInput() {
 }
 
 function NodesPanel({ onClose }: { onClose: () => void }) {
+  const [selectedItem, setSelectedItem] = useState<string | null>(null);
+
   const categories = [
     {
-      name: "Core Nodes",
+      name: "Load Data",
       icon: "📦",
-      description: "Essential components for workflow construction",
+      description: "Load Dataframe",
+    },
+    {
+      name: "Data Visualization",
+      icon: "📊",
+      description: "Bar Charts, Line Graphs, More",
     },
     {
       name: "Using AI",
-      icon: "🤖",
+      icon: "🧠",
       description: "Leverage AI for various tasks",
     },
     {
-      name: "Triggers",
-      icon: "🎯",
-      description: "Automate actions based on events",
+      name: "Custom Nodes",
+      icon: "🛠️",
+      description: "Run custom scripts in R",
     },
     {
-      name: "Your Custom Nodes",
-      icon: "⚙️",
-      description: "Create your own nodes to automate your workflows",
-    },
-    {
-      name: "Subflows",
-      icon: "🔗",
-      description: "Automate your workflows with subflows",
-    },
+      name: "Post Processing",
+      icon: "🧮",
+      description: "Bonferonni/FDR P Value Correction",
+    }
   ];
 
   const frequentlyUsed = [
-    { name: "Ask AI", icon: "💬", description: "Prompt an AI..." },
-    { name: "Input", icon: "⬇️", description: "Entry point for..." },
-    { name: "Extract Data", icon: "📤", description: "Extract key piece..." },
-    { name: "Output", icon: "⬆️", description: "Exit point for..." },
+    { name: "Survival Analysis", icon: "⏳", description: "Kaplan-Meier, Cox models" },
+    { name: "Linear Regression", icon: "📈", description: "Fit and interpret linear models" },
+    { name: "Logistic Regression", icon: "🔢", description: "Classify outcomes with logistic models" },
+    { name: "Lasso Regression", icon: "🪢", description: "Regularized regression for feature selection" },
   ];
 
   return (
@@ -325,49 +327,103 @@ function NodesPanel({ onClose }: { onClose: () => void }) {
 
         {/* Categories */}
         <div className="space-y-2 mb-8">
-          {categories.map((category, idx) => (
-            <div
-              key={idx}
-              className="p-4 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors group"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center text-2xl">
-                    {category.icon}
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      {category.name}
-                    </h3>
-                    <p className="text-sm text-gray-500">{category.description}</p>
-                  </div>
-                </div>
-                <span className="text-gray-400 group-hover:text-gray-600">›</span>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Frequently Used */}
-        <div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Frequently Used
-          </h2>
-          <div className="grid grid-cols-2 gap-3">
-            {frequentlyUsed.map((item, idx) => (
+          {categories.map((category, idx) => {
+            const isSelected = selectedItem === category.name;
+            return (
               <div
                 key={idx}
-                className="p-4 rounded-xl bg-gradient-to-br from-pink-50 to-pink-100 hover:from-pink-100 hover:to-pink-150 cursor-pointer transition-all"
+                onClick={() => setSelectedItem(category.name)}
+                className={`p-4 rounded-xl cursor-pointer transition-all group ${
+                  isSelected
+                    ? "bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg"
+                    : "hover:bg-gray-50"
+                }`}
               >
-                <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-xl mb-2 shadow-sm">
-                  {item.icon}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl ${
+                        isSelected
+                          ? "bg-white/20"
+                          : "bg-gradient-to-br from-gray-100 to-gray-200"
+                      }`}
+                    >
+                      {category.icon}
+                    </div>
+                    <div>
+                      <h3
+                        className={`text-lg font-semibold ${
+                          isSelected ? "text-white" : "text-gray-900"
+                        }`}
+                      >
+                        {category.name}
+                      </h3>
+                      <p
+                        className={`text-sm ${
+                          isSelected ? "text-blue-100" : "text-gray-500"
+                        }`}
+                      >
+                        {category.description}
+                      </p>
+                    </div>
+                  </div>
+                  <span
+                    className={`${
+                      isSelected
+                        ? "text-white"
+                        : "text-gray-400 group-hover:text-gray-600"
+                    }`}
+                  >
+                    ›
+                  </span>
                 </div>
-                <h4 className="font-semibold text-gray-900 text-sm mb-1">
-                  {item.name}
-                </h4>
-                <p className="text-xs text-gray-600">{item.description}</p>
               </div>
-            ))}
+            );
+          })}
+        </div>
+
+        {/* Analysis Tools */}
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            Analysis Tools
+          </h2>
+          <div className="grid grid-cols-2 gap-3">
+            {frequentlyUsed.map((item, idx) => {
+              const isSelected = selectedItem === item.name;
+              return (
+                <div
+                  key={idx}
+                  onClick={() => setSelectedItem(item.name)}
+                  className={`p-4 rounded-xl cursor-pointer transition-all ${
+                    isSelected
+                      ? "bg-gradient-to-br from-purple-500 to-purple-600 shadow-lg scale-105"
+                      : "bg-gradient-to-br from-pink-50 to-pink-100 hover:from-pink-100 hover:to-pink-150"
+                  }`}
+                >
+                  <div
+                    className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl mb-2 shadow-sm ${
+                      isSelected ? "bg-white/30" : "bg-white"
+                    }`}
+                  >
+                    {item.icon}
+                  </div>
+                  <h4
+                    className={`font-semibold text-sm mb-1 ${
+                      isSelected ? "text-white" : "text-gray-900"
+                    }`}
+                  >
+                    {item.name}
+                  </h4>
+                  <p
+                    className={`text-xs ${
+                      isSelected ? "text-purple-100" : "text-gray-600"
+                    }`}
+                  >
+                    {item.description}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -376,7 +432,7 @@ function NodesPanel({ onClose }: { onClose: () => void }) {
 }
 
 function AddButton() {
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [isPanelOpen, setIsPanelOpen] = useState(true);
 
   return (
     <div className="w-full min-h-screen flex items-start justify-start p-4">
@@ -409,7 +465,7 @@ export default function Home() {
 
         <AddButton/>
         
-        {/* <DragNDropInput /> */}
+        
       </div>
     </>
   );
