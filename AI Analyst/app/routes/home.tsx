@@ -204,6 +204,76 @@ function LoadingAnimation() {
   );
 }
 
+function TableModal({ 
+  isOpen, 
+  onClose, 
+  varNames, 
+  descriptions, 
+  units 
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  varNames: string[];
+  descriptions: string[];
+  units: string[];
+}) {
+  if (!isOpen) return null;
+
+  return (
+    <div 
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div 
+        className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[80vh] overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h2 className="text-2xl font-bold text-gray-900">Data Table</h2>
+          <button
+            onClick={onClose}
+            className="w-10 h-10 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-600 text-2xl transition-colors"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="overflow-auto max-h-[calc(80vh-80px)] p-6">
+          <table className="min-w-full">
+            <thead className="sticky top-0 bg-white">
+              <tr className="bg-gradient-to-r from-gray-50 to-gray-100">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 rounded-tl-lg">
+                  Variable
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700">
+                  Description
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 rounded-tr-lg">
+                  Units
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {varNames.map((name, i) => (
+                <tr key={i} className="hover:bg-blue-50 transition-colors group">
+                  <td className="px-4 py-3 text-sm text-gray-900 font-medium">
+                    {name}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-700">
+                    {descriptions?.[i] || ""}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-700">
+                    {units?.[i] || ""}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function DragNDropInput() {
   const { xptFile, pdfFile, handleXptChange, handlePdfChange } =
     useFileUpload();
@@ -213,6 +283,7 @@ function DragNDropInput() {
 
   const { submitFiles } = useFormSubmit();
   const [isLoading, setIsLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     // 3. Prevent the default form submission which would be empty
@@ -300,43 +371,32 @@ function DragNDropInput() {
       </Form>
 
       {hasData && (
-        <div className="bg-white rounded-2xl shadow-2xl p-6 border border-gray-100">
-          <h3 className="text-lg font-bold mb-4 text-gray-900">
-            Extracted Variables
-          </h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full">
-              <thead>
-                <tr className="bg-gradient-to-r from-gray-50 to-gray-100">
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 rounded-tl-lg">
-                    Variable
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700">
-                    Description
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 rounded-tr-lg">
-                    Units
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {parsed_var_names.map((name, i) => (
-                  <tr key={i} className="hover:bg-blue-50 transition-colors group">
-                    <td className="px-4 py-3 text-sm text-gray-900 font-medium">
-                      {name}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-700">
-                      {parsed_description?.[i] || ""}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-700">
-                      {parsed_units?.[i] || ""}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <>
+          <div className="bg-white rounded-2xl shadow-2xl p-6 border border-gray-100">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-900">
+                Processing Complete
+              </h3>
+              <span 
+                onClick={() => setIsModalOpen(true)}
+                className="text-blue-600 hover:text-blue-700 font-semibold cursor-pointer hover:underline transition-all"
+              >
+                View Table
+              </span>
+            </div>
+            <p className="text-sm text-gray-600">
+              Successfully extracted {parsed_var_names.length} variables from your data.
+            </p>
           </div>
-        </div>
+
+          <TableModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            varNames={parsed_var_names}
+            descriptions={parsed_description}
+            units={parsed_units}
+          />
+        </>
       )}
     </div>
   );
