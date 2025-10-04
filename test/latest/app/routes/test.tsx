@@ -14,7 +14,7 @@
 // ): Promise<ExtractorOutput> {
 //   const llm = ai({
 //     name: "openai",
-//     apiKey: "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",
+//     apiKey: 
 //     config: { model: AxAIOpenAIModel.GPT41Mini }
 //   });
 //   const Extractor = ax(

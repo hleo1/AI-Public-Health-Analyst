@@ -1,107 +1,93 @@
 import type { Route } from "./+types/home";
 import { useEffect, useCallback, useState } from "react";
-import { useDropzone } from "react-dropzone";
+import { useFetcher } from "react-router-dom";
+import SideBar from "~/components/SideBar";
+
+import { DataSourceBlock } from "~/components/DataSourceBlock";
+import { spawn } from "child_process";
 
 
-function Icon({ text }: { text: string }) {
-  return (
-    <div className="w-15 h-15 border border-black rounded-xl flex items-center justify-center text-center cursor-pointer">
-      {text}
-    </div>
-  );
-}
 
-function DragNDrop({file, setFile, filetype} : {file: File | null, setFile: React.Dispatch<React.SetStateAction<File| null>>, filetype: string}) {
+export async function action({ request }: Route.ActionArgs) {
+  const formData = await request.formData();
+  const xpt = formData.get("xpt");
+  const pdf = formData.get("pdf");
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    setFile(acceptedFiles[0]);
-  }, []);
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
-
-  return (
-    <div {...getRootProps()} className="border border-black">
-      <input {...getInputProps()} />
-      {!file?.name ? <p>Drag 'n' drop {filetype}</p> : <p>{file?.name}</p>}
-    </div>
-  );
-}
-
-function DataSourceBlock() {
-  const [xptFile, setxptFile] = useState<File | null>(null);
-  const [pdfFile, setpdfFile] = useState<File | null>(null);
-  const [uploadSuccesful, setuploadSuccesful] = useState(false);
-
-  const uploadFiles = async () => {
-    if (!xptFile || !pdfFile) {
-      alert("Both XPT and PDF files are required.");
-      return;
-    }
-    const formData = new FormData();
-    formData.append("xpt", xptFile);
-    formData.append("pdf", pdfFile);
-
-    try {
-      const response = await fetch("http://localhost:3000/data-source", {
-        method: "POST",
-        body: formData,
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-      const text = await response.text();
-      console.log("Upload success:", text);
-    } catch (error) {
-      console.error("Upload failed:", error);
-    }
+  if (!(xpt instanceof File) || !(pdf instanceof File)) {
+    return { error: "Both xpt and pdf are required." };
   }
 
-  return (
-    <div className="w-60 h-30 top-20 bg-white rounded-xl border border-black text-center flex flex-col items-center justify-center">
-      Data Source
-      <DragNDrop file={xptFile} setFile={setxptFile} filetype=".xpt"/>
-      <DragNDrop file={pdfFile} setFile={setpdfFile} filetype=".pdf"/>
-      <button className="bg-blue-300" onClick={() => {uploadFiles()}}>Upload</button>
-    </div>
-  );
+  const fs = await import("fs/promises");
+  const path = await import("path");
+  const uploadDir = path.join(process.cwd(), "uploads");
+  await fs.mkdir(uploadDir, { recursive: true });
+
+  const saveFile = async (file: File) => {
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const filename = `${Date.now()}-${file.name}`;
+    const filepath = path.join(uploadDir, filename);
+    await fs.writeFile(filepath, buffer);
+    return filepath;
+  };
+
+  const xptPath = await saveFile(xpt);
+  const pdfPath = await saveFile(pdf);
+
+  const rScript = `
+    required <- c("haven", "jsonlite", "dplyr", "ggplot2")
+    to_install <- setdiff(required, rownames(installed.packages()))
+    if (length(to_install)) install.packages(to_install, repos = "https://cloud.r-project.org")
+
+    suppressPackageStartupMessages({
+    library(haven)
+    library(jsonlite)
+    library(dplyr)
+    })
+
+    data <- read_xpt("${xptPath}")
+    cat(toJSON(list(results = colnames(data))))
+  `;
+
+  console.log("🔷 Executing R Script:", rScript);
+
+  const { spawn } = await import("child_process");
+  return await new Promise((resolve) => {
+    let result = "";
+    let error = "";
+    const child = spawn("Rscript", ["-e", rScript]);
+    child.stdout.on("data", (data) => { 
+      const chunk = data.toString();
+      console.log("📤 R stdout:", chunk);
+      result += chunk;
+    });
+    child.stderr.on("data", (data) => { 
+      const chunk = data.toString();
+      console.log("⚠️ R stderr:", chunk);
+      error += chunk;
+    });
+    child.on("close", (code) => {
+      console.log(`✅ R process closed with code: ${code}`);
+      console.log("📊 Final result:", result);
+      console.log("❌ Final error:", error);
+      if (code !== 0) {
+        resolve({ error: error || "Failed to read xpt file" });
+      } else {
+        try {
+          const parsed = JSON.parse(result);
+          resolve({ xptPath, pdfPath, parsed });
+        } catch (e) {
+          resolve({ error: "Invalid JSON from R" });
+        }
+      }
+    });
+  });
 }
 
-function FindBlock() {
-  return (
-    <div className="w-60 h-30 top-20 bg-white rounded-xl border border-black text-center flex items-center justify-center">
-      Find Block
-    </div>
-  );
-}
 
-function ExtractInfoBlock() {
-  return (
-    <div className="w-60 h-30 top-20 bg-white rounded-xl border border-black text-center flex items-center justify-center">
-      Extract Info
-    </div>
-  );
-}
-
-function SelectBlock() {
-  return (
-    <div className="w-60 h-30 top-20 bg-white rounded-xl border border-black text-center flex items-center justify-center">
-      Select
-    </div>
-  );
-}
-
-function SideBar() {
-  return (
-    <div className="absolute left-2 top-1/2 -translate-y-1/2 h-100 w-20 bg-white rounded-xl border border-black  gap-3 py-10 shadow-xl flex flex-col items-center text-sm">
-      <Icon text="Data Source"></Icon>
-      <Icon text="Get Columns"></Icon>
-      <Icon text="Extract Info"></Icon>
-      <Icon text="Select"></Icon>
-    </div>
-  );
-}
-
-export default function Home() {
+export default function Home({
+  actionData,
+}: Route.ComponentProps) {
   return (
     <div
       className="w-full min-h-screen"
@@ -113,9 +99,6 @@ export default function Home() {
     >
       <div className="flex gap-5">
         <DataSourceBlock />
-        <FindBlock />
-        <ExtractInfoBlock />
-        <SelectBlock />
       </div>
       <SideBar />
     </div>

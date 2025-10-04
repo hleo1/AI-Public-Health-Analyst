@@ -46,8 +46,14 @@ app.post("/data-source", upload.fields([
       if (!xpt || !pdf) {
         return res.status(400).send("Both xpt and pdf are required.");
       }
-        res.send("Files uploaded succesfully");
+      res.send({xpt: xpt.path, pdf: pdf.path});
 });
+
+app.post("/extract-info-process", (_req, _res) => {
+  // uploads/1759444134272-DEMO_L.xpt      is the xpt
+  // uploads/1759444134284-DEMO_L_Doc.txt  is the documentation
+  
+})
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
